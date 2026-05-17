@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Minha Carteira</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #181818;
+    --surface2: #222222;
+    --border: #2a2a2a;
+    --border2: #333;
+    --text: #f0ede8;
+    --muted: #888;
+    --accent: #c8f57a;
+    --accent2: #7affd4;
+    --red: #ff6b6b;
+    --amber: #ffc96b;
+    --green: #7affd4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; min-height: 100vh; }
+
+  header { border-bottom: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 15px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  header .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 10px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 32px; }
+
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+  .metric { background: var(--surface); padding: 20px 24px; }
+  .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+  .metric-value { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: var(--text); }
+  .metric-value.accent { color: var(--accent); }
+
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; }
+
+  .table-wrap { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { background: var(--surface); padding: 12px 20px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 400; border-bottom: 1px solid var(--border); }
+  tbody td { padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface2); }
+  .ticker { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--text); }
+  .badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+  .badge-fii { background: rgba(122,255,212,0.1); color: var(--green); border: 1px solid rgba(122,255,212,0.2); }
+  .badge-acao { background: rgba(200,245,122,0.1); color: var(--accent); border: 1px solid rgba(200,245,122,0.2); }
+  .num { font-family: 'DM Mono', monospace; color: var(--muted); }
+  .num.highlight { color: var(--text); }
+  .btn-del { background: none; border: 1px solid transparent; border-radius: 6px; color: var(--muted); cursor: pointer; padding: 4px 8px; font-size: 16px; line-height: 1; transition: all 0.15s; }
+  .btn-del:hover { border-color: var(--red); color: var(--red); background: rgba(255,107,107,0.08); }
+  .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+
+  .add-form { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 24px; margin-bottom: 40px; }
+  .form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+  .field label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); display: block; margin-bottom: 6px; }
+  input, select {
+    background: var(--bg); border: 1px solid var(--border2); border-radius: 8px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    padding: 9px 12px; width: 100%; outline: none; transition: border-color 0.15s;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  select option { background: var(--bg); }
+  .btn-add { background: var(--accent); color: #0f0f0f; border: none; border-radius: 8px; padding: 10px 20px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+  .btn-add:hover { opacity: 0.85; }
+
+  .email-section { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 24px; }
+  .email-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .hint { font-size: 12px; color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
+  .hint::before { content: '●'; color: var(--amber); font-size: 8px; }
+  .btn-gerar { width: 100%; background: transparent; border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; padding: 13px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .btn-gerar:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,245,122,0.05); }
+  .btn-gerar .arrow { font-size: 16px; }
+
+  .code-block { margin-top: 24px; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; overflow: hidden; display: none; }
+  .code-header { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .code-header span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .btn-copy { background: none; border: 1px solid var(--border2); border-radius: 6px; color: var(--muted); font-size: 12px; padding: 4px 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.7; color: #ccc; overflow-x: auto; white-space: pre; }
+
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .email-grid { grid-template-columns: 1fr; }
+    .container { padding: 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="dot"></span>Minha Carteira</h1>
+  <span style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace" id="data-atual"></span>
+</header>
+
+<div class="container">
+
+  <div class="metrics" id="metrics">
+    <div class="metric"><div class="metric-label">Valor total</div><div class="metric-value accent" id="m-total">R$ 0,00</div></div>
+    <div class="metric"><div class="metric-label">Ativos</div><div class="metric-value" id="m-ativos">0</div></div>
+    <div class="metric"><div class="metric-label">FIIs</div><div class="metric-value" id="m-fii">0</div></div>
+    <div class="metric"><div class="metric-label">Ações</div><div class="metric-value" id="m-acao">0</div></div>
+  </div>
+
+  <div class="section-label">Carteira</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Tipo</th>
+          <th>Qtd.</th>
+          <th>Preço (R$)</th>
+          <th>Total (R$)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="6" class="empty">Nenhum ativo adicionado ainda</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-label">Adicionar ativo</div>
+  <div class="add-form">
+    <div class="form-grid">
+      <div class="field">
+        <label>Código</label>
+        <input type="text" id="inp-ticker" placeholder="Ex: MXRF11" style="text-transform:uppercase" />
+      </div>
+      <div class="field">
+        <label>Tipo</label>
+        <select id="inp-tipo">
+          <option value="FII">FII</option>
+          <option value="Ação">Ação</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Quantidade</label>
+        <input type="number" id="inp-qtd" placeholder="100" min="1" />
+      </div>
+      <div class="field">
+        <label>Preço atual (R$)</label>
+        <input type="number" id="inp-preco" placeholder="10.50" step="0.01" />
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button class="btn-add" onclick="adicionarAtivo()">+ Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">E-mail diário</div>
+  <div class="email-section">
+    <div class="email-grid">
+      <div class="field">
+        <label>Seu Gmail</label>
+        <input type="email" id="inp-email" placeholder="seuemail@gmail.com" />
+      </div>
+      <div class="field">
+        <label>Horário de envio</label>
+        <input type="time" id="inp-hora" value="19:00" />
+      </div>
+    </div>
+    <p class="hint">O e-mail será enviado todo dia após o fechamento da B3 (17h30). Recomendamos 19h00.</p>
+    <button class="btn-gerar" onclick="gerarCodigo()">
+      <span>Gerar código Python</span>
+      <span class="arrow">→</span>
+    </button>
+
+    <div class="code-block" id="code-block">
+      <div class="code-header">
+        <span>carteira.py — copie e salve no seu computador</span>
+        <button class="btn-copy" onclick="copiarCodigo()">Copiar</button>
+      </div>
+      <pre id="code-output"></pre>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const ativos = JSON.parse(localStorage.getItem('carteira') || '[]');
+
+  document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR', {weekday:'short', day:'2-digit', month:'short', year:'numeric'});
+
+  function salvar() { localStorage.setItem('carteira', JSON.stringify(ativos)); }
+
+  function renderTabela() {
+    const tbody = document.getElementById('tbody');
+    let total = 0, nFii = 0, nAcao = 0;
+
+    if (ativos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum ativo adicionado ainda</td></tr>';
+    } else {
+      tbody.innerHTML = ativos.map((a, i) => {
+        const t = a.qtd * a.preco;
+        total += t;
+        if (a.tipo === 'FII') nFii++; else nAcao++;
+        return `<tr>
+          <td class="ticker">${a.ticker}.SA</td>
+          <td><span class="badge ${a.tipo === 'FII' ? 'badge-fii' : 'badge-acao'}">${a.tipo}</span></td>
+          <td class="num">${a.qtd.toLocaleString('pt-BR')}</td>
+          <td class="num highlight">${a.preco.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+          <td class="num highlight">${t.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+          <td><button class="btn-del" onclick="removerAtivo(${i})" title="Remover">×</button></td>
+        </tr>`;
+      }).join('');
+    }
+
+    document.getElementById('m-total').textContent = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('m-ativos').textContent = ativos.length;
+    document.getElementById('m-fii').textContent = nFii;
+    document.getElementById('m-acao').textContent = nAcao;
+  }
+
+  function adicionarAtivo() {
+    const ticker = document.getElementById('inp-ticker').value.trim().toUpperCase();
+    const tipo   = document.getElementById('inp-tipo').value;
+    const qtd    = parseFloat(document.getElementById('inp-qtd').value);
+    const preco  = parseFloat(document.getElementById('inp-preco').value);
+    if (!ticker || isNaN(qtd) || isNaN(preco) || qtd <= 0 || preco <= 0) {
+      alert('Preencha todos os campos corretamente!'); return;
+    }
+    ativos.push({ ticker, tipo, qtd, preco });
+    salvar();
+    document.getElementById('inp-ticker').value = '';
+    document.getElementById('inp-qtd').value = '';
+    document.getElementById('inp-preco').value = '';
+    renderTabela();
+  }
+
+  function removerAtivo(i) {
+    if (confirm('Remover ' + ativos[i].ticker + '?')) {
+      ativos.splice(i, 1); salvar(); renderTabela();
+    }
+  }
+
+  function gerarCodigo() {
+    if (ativos.length === 0) { alert('Adicione pelo menos um ativo antes de gerar o código!'); return; }
+    const email = document.getElementById('inp-email').value.trim();
+    const hora  = document.getElementById('inp-hora').value || '19:00';
+    if (!email) { alert('Preencha seu e-mail!'); return; }
+
+    const linhasCarteira = ativos.map(a => `    "${a.ticker}.SA": ${a.qtd},`).join('\n');
+
+    const codigo = `import yfinance as yf
+import smtplib
+import schedule
+import time
+from email.mime.text import MIMEText
+from datetime import datetime
+
+# ============================================================
+# CONFIGURAÇÕES
+# ============================================================
+
+EMAIL_REMETENTE = "${email}"
+EMAIL_SENHA     = "sua_senha_de_app"   # cole aqui a senha de app do Gmail
+EMAIL_DESTINO   = "${email}"
+
+CARTEIRA = {
+${linhasCarteira}
+}
+
+# ============================================================
+# AGENTE — não mexa abaixo desta linha
+# ============================================================
+
+def buscar_precos():
+    resultados = []
+    total = 0.0
+    for ticker, quantidade in CARTEIRA.items():
+        dado = yf.Ticker(ticker)
+        preco = dado.fast_info["lastPrice"]
+        valor = preco * quantidade
+        total += valor
+        resultados.append(f"{ticker.replace('.SA',''):10} | {quantidade:5} cotas/ações | R$ {preco:8.2f} | Total: R$ {valor:10.2f}")
+    return resultados, total
+
+def enviar_email():
+    print(f"[{datetime.now().strftime('%H:%M')}] Buscando preços...")
+    try:
+        linhas, total = buscar_precos()
+        corpo = "RESUMO DA SUA CARTEIRA\\n"
+        corpo += "=" * 60 + "\\n"
+        corpo += "\\n".join(linhas)
+        corpo += "\\n" + "=" * 60
+        corpo += f"\\nVALOR TOTAL: R$ {total:,.2f}"
+        corpo += f"\\n\\nAtualizado em: {datetime.now().strftime('%d/%m/%Y às %H:%M')}"
+
+        msg = MIMEText(corpo, "plain", "utf-8")
+        msg["Subject"] = f"Carteira — R$ {total:,.2f} — {datetime.now().strftime('%d/%m/%Y')}"
+        msg["From"]    = EMAIL_REMETENTE
+        msg["To"]      = EMAIL_DESTINO
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as servidor:
+            servidor.login(EMAIL_REMETENTE, EMAIL_SENHA)
+            servidor.send_message(msg)
+
+        print("E-mail enviado com sucesso!")
+    except Exception as e:
+        print(f"Erro: {e}")
+
+schedule.every().day.at("${hora}").do(enviar_email)
+
+print("Agente rodando... deixe essa janela aberta.")
+enviar_email()
+
+while True:
+    schedule.run_pending()
+    time.sleep(60)
+`;
+
+    document.getElementById('code-output').textContent = codigo;
+    document.getElementById('code-block').style.display = 'block';
+    document.getElementById('code-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function copiarCodigo() {
+    const texto = document.getElementById('code-output').textContent;
+    navigator.clipboard.writeText(texto).then(() => {
+      const btn = document.querySelector('.btn-copy');
+      btn.textContent = 'Copiado!';
+      setTimeout(() => btn.textContent = 'Copiar', 2000);
+    });
+  }
+
+  renderTabela();
+</script>
+</body>
+</html>
